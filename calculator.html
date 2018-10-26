@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Сайт </title>
+		<link rel="stylesheet" href="style.css">
+
+        <style type="text/css">
+        #calculator * {font-size: 21px;}
+        #calculator table {border: solid 6px silver; border-spacing: 6px; background-color: #9400D3; }
+        #calculator table td {border-spacing: 6px;}
+        .History{width: 508px; resize: none;}
+        input.display {width: 512px; text-align: right;}
+        td.buttons {border-top: solid 2px #800080;}
+        input[type= button] {width: 80px; height: 60px;}
+        #MDBut{}
+        #MIBut{}
+        </style>
+	</head>
+	<body>
+	<div class="hat"><img src="http://data2.1freewallpapers.com/detail/abstraction-line-purple.jpg"></div>
+	    <nav>
+    	    <ul>
+    	        <li><a href="main.html">Главная</a></li>
+    	        <li><a href="#">Задания</a>
+					<ul>
+						<li><a href="#">Задание 1</a>
+						<ul>
+							<li><a href="poem.html">Стих</a></li>
+							<li><a href="myself.html">О себе</a></li>
+						</ul></li>	
+			            <li><a href="#">Задание 2</a>
+						<ul>
+			                <li><a href="math.html">Формулки</a></li>
+			                <li><a href="figures.html">Рисунки</a></li>
+			            </ul></li>
+			            <li><a href="#">Задание 3</a>
+						<ul>
+			                <li><a href="JS - 1.html">JS - 1</a></li>
+			                <li><a href="JS - 2.html">JS - 2</a></li>
+                            <li><a href="JS - 3.html">JS - 3</a></li>
+                            <li><a href="JS - 4.html">JS - 4</a></li>
+			            </ul></li>
+                        <li><a href="#">Задание 4</a>
+                        <ul>
+                            <li><a href="4 - 1.html">4 - 1</a></li>
+                        </ul></li>
+                        <li><a href="#">Доп. задания</a>
+                        <ul>
+                            <li><a href="calculator.html">Калькулятор</a></li>
+                        </ul></li>  
+			        </ul></li>
+   		    </ul>
+    	</nav>
+		<div class="table">
+			<div class="Lpole"><p><img src="1xBet.jpg"></p></div>
+			<div class="inform">
+                <form name="calc" id="calculator">
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="text" name="InputDis" id="InputDis" class="display">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="buttons">
+                                <input type="button" name="MPlus" value="M+" OnClick= MemPlus(calc.InputDis.value)>
+                                <input type="button" name="MMinus" value="M-" OnClick= MemMinus(calc.InputDis.value)>
+                                <input type="button" name="MInput" value="MI" id="MIBut" OnClick= MemInput()>
+                                <input type="button" name="MDel" value="MD"  id="MDBut" OnClick= MemDel()>
+                            
+                            <br>   
+                                <input type="button" name="one" value="1" OnClick = NumInput(calc.one.value)>
+                                <input type="button" name="two" value="2" OnClick= NumInput(calc.two.value)>
+                                <input type="button" name="three" value="3" OnClick= NumInput(calc.three.value)>
+                                <input type="button" name="plus" value="+" OnClick= NumInput(calc.plus.value)>
+                                <input type="button" name="add" value="ln" OnClick= LN(calc.InputDis.value) >
+                                
+                                <br>
+                                <input type="button" name="four" value="4" OnClick= NumInput(calc.four.value)>
+                                <input type="button" name="five" value="5" OnClick= NumInput(calc.five.value)>
+                                <input type="button" name="six" value="6" OnClick= NumInput(calc.six.value)>
+                                <input type="button" name="sub" value="-" OnClick= NumInput(calc.sub.value)>
+                                <input type="button" name="add" value="sin" OnClick= Sin(calc.InputDis.value)>
+                                
+                                <br>
+                                <input type="button" name="seven" value="7" OnClick= NumInput(calc.seven.value)>
+                                <input type="button" name="eight" value="8" OnClick= NumInput(calc.eight.value)>
+                                <input type="button" name="nine" value="9" OnClick= NumInput(calc.nine.value)>
+                                <input type="button" name="mul" value="*" OnClick= NumInput(calc.mul.value)>
+                                <input type="button" name="add" value="cos" OnClick= Cos(calc.InputDis.value)>
+                                
+                                <br>
+                                <input type="button" name="clear" value="c" OnClick="calc.InputDis.value = ''">
+                                <input type="button" name="zero" value="0" OnClick= NumInput(calc.zero.value)>
+                                <input type="button" name="doit" value="=" OnClick= Equal(calc.InputDis.value)>
+                                <input type="button" name="div"  value="/" OnClick= NumInput(calc.div.value)>
+                                <input type="button" name="point" value="." OnClick= NumInput(calc.point.value)>
+                                <br>
+                                
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <textarea class="History" id="History" readonly="true" length=510px></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <script type="text/javascript">
+                    var Memory = 0;
+
+                    function NumInput(Num) {
+                        document.getElementById("InputDis").value += Num;
+                    }
+
+                    function Equal(Str) {
+                        document.getElementById("InputDis").value = eval(Str);
+                        document.getElementById("History").value += Str + ' = ' + eval(Str) + '\n';
+                    }
+
+                    function LN(Str) {
+                        document.getElementById("InputDis").value = Math.log(eval(Str));
+                        document.getElementById("History").value += 'ln(' + eval(Str) + ') = ' + Math.log(eval(Str)) + '\n';
+                    }
+
+                    function Sin(Str) {
+                        document.getElementById("InputDis").value = Math.sin(eval(Str));
+                        document.getElementById("History").value += 'Sin(' + eval(Str) + ') = ' + Math.sin(eval(Str)) + '\n';
+                    } 
+
+                    function Cos(Str) {
+                        document.getElementById("InputDis").value = Math.cos(eval(Str));
+                        document.getElementById("History").value += 'Sin(' + eval(Str) + ') = ' + Math.sin(eval(Str)) + '\n';
+                    }
+
+                    function MemPlus(Str) {
+                        Memory += eval(Str);
+                    }
+
+                    function MemMinus(Str) {
+                        Memory -= eval(Str);
+                    }
+
+                    function MemInput() {
+                        document.getElementById("InputDis").value += Memory;
+                    }
+
+                    function MemDel() {
+                        Memory = 0;
+
+                    }
+            </script>
+            </div>
+			<div class="Rpole">
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="https://media.cdnandroid.com/a3/04/4b/2c/imagen-joy-slot-machines-0big.jpg"></a></p>
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="https://yt3.ggpht.com/a-/AK162_7ydhpbLRUZlflPS6Ei2y3fx86fDO4adrQp=s900-mo-c-c0xffffffff-rj-k-no"></a></p>
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="http://labuat.com/wp-content/uploads/2017/05/1418060529_09.jpg"></a></p>
+			</div>
+		</div>
+		<div class="copyrite"><p>Роговой Владислав Б8103б, для связи <a href="https://vk.com/id161055139"><img src="https://ezgame.ru/upload/vk.png"></a></p></div>
+	</body>
+</html>
+

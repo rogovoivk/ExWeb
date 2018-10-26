@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas & ES6 Classes</title>
+    <meta charset="UTF-8"/>
+    <script type="text/javascript">
+        function rnd(min, max) {
+            return min + Math.random() * (max - min);
+        }
+
+        const Direction = Object.freeze({
+            UP: "UP",
+            DOWN: "DOWN",
+            LEFT: "LEFT",
+            RIGHT: "RIGHT",
+            CHAOS: "CHAOS"
+        });
+
+        class Collisions {
+            static collide(a, b) {
+                //console.log(a, b);
+                switch (a.constructor.name) {
+                    case "TBall":
+                    case "TBullet":
+                        switch (b.constructor.name) {
+                            case "TBall":
+                                //console.log ('Collisions');
+                                return this.ball2ball(a, b);
+                            case "TRect":
+                            case "TSquare":
+                                return this.ball2rect(a, b);
+                        }
+                        break;
+                    case "TRect":
+                    case "TSquare":
+                        switch (b.constructor.name) {
+                            case "TBall":
+                            case "TBullet":
+                                //console.log ('Collisions square');
+                                return this.rect2ball(a, b);
+                            case "TRect":
+                            case "TSquare":
+                                return this.rect2rect(a, b);
+                        }
+                        break;
+                }
+                return false;
+            }
+
+            static rect2rect(a, b) {
+                return (a.posX <= b.posX + b.width) && (b.posX <= a.posX + a.width) && (a.posY <= b.posY + b.height) &&
+                    (b.posY <= a.posY + a.height);
+            }
+        }
+
+        //const spdGrow = 0.4;
+        const maxSize = 50;
+        const airResistance = 0.05;
+        const gravity = 0.35;
+        const freeFallAccel = 5;
+
+        var canvas, ctx, figures, idTimer = -1;
+        var direction = Direction.CHAOS;
+        var direction1;
+        var gunAngle = 0;
+        var bulletX = 0, bulletY = 0;
+        var help = 0;
+        var counter = 0;
+
+        class TFigure {
+            constructor(pX, pY, dir) {
+                this.posX = pX;
+                this.posY = pY;
+                this.speed = rnd(2, 7);
+                this.text = '2';
+                this.dir = dir;
+                this.color = 'rgb(' + ~~(Math.random() * 256) + ','
+                    + ~~(Math.random() * 256) + ',' + ~~(Math.random() * 256) + ')';
+            }
+
+            /*text (){
+            	let tex9 = '2';
+            }*/
+
+            move() {
+                let spdMove = rnd(this.speed, 1.5 * this.speed);
+                let spdVibe = rnd(-this.speed, this.speed);
+                switch (this.dir) {
+                    case Direction.UP:
+                        this.posX += spdVibe;
+                        this.posY -= spdMove;
+                        break;
+                    case Direction.DOWN:
+                        this.posX += spdVibe;
+                        this.posY += spdMove;
+                        break;
+                    case Direction.LEFT:
+                        this.posX -= spdMove;
+                        this.posY += spdVibe;
+                        break;
+                    case Direction.RIGHT:
+                        this.posX += spdMove;
+                        this.posY += spdVibe;
+                        break;
+                    case Direction.CHAOS:
+                    
+                        //this.posX += spdMove;
+                        //this.posY -= spdMove;
+                        //alert(direction1);
+                        //console.log(direction1);
+                        if (direction1 == "UP")
+                        {       
+                            this.posY -= spdMove;
+                            this.posY -= spdVibe; 
+                        }
+                        if (direction1 == "LEFT")
+                        {
+                            this.posX -= spdMove;
+                            this.posX -= spdVibe;  
+                        }
+                        if (direction1 == "RIGHT")
+                        {
+                            this.posX += spdMove; 
+                            this.posX += spdVibe; 
+                        }
+                        if (direction1 == "DOWN")
+                        {
+                            this.posY += spdMove;
+                            this.posY += spdVibe;  
+                        }
+                        break;
+                    
+                }
+            }
+
+            draw(ctx) {
+            }
+
+            size() {
+            }
+        }
+
+        
+
+       
+  
+
+        class TRect extends TFigure {
+            constructor(pX, pY, dir) {
+                super(pX, pY, dir);
+                this.width = 5 + Math.random() * 25;
+                this.height = 5 + Math.random() * 25;
+            }
+
+
+
+            setGradient(ctx) {
+                // формируем градиентную заливку
+                let gradient = ctx.createRadialGradient(this.posX + this.width / 4,
+                    this.posY - this.height / 6, Math.min(this.width, this.height) / 8,
+                    this.posX, this.posY, Math.max(this.width, this.height));
+                gradient.addColorStop(0, '#fff');
+                gradient.addColorStop(0.85, this.color);
+                return gradient;
+            }
+
+            move() {
+                super.move();
+                let whRatio = (this.width) / (this.height);
+                //this.width += spdGrow;
+                //this.height += spdGrow / whRatio;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = this.setGradient(ctx);
+                ctx.beginPath();
+                ctx.rect(this.posX, this.posY, this.width, this.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            size() {
+                return Math.sqrt(this.width ** 2 + this.height ** 2) / 2;
+            }
+        }
+
+        const figureClasses = [TRect];
+
+        function setDirection(radio) {
+            direction = Direction[radio.id];
+            direction1 = radio.id;
+        }
+
+        function setRandomDirection(radio) {
+            let keys = Object.keys(Direction);
+            let randDir = Direction[keys[~~(keys.length * Math.random())]];
+            direction = randDir;
+            radio.checked = false;
+            document.getElementById(randDir).checked = true;
+        }
+
+        function createItem(x, y) {
+            //let figureId = ~~(figureClasses.length * Math.random());
+            let figureId = 1;
+            return new figureClasses[figureId](x, y, direction);
+        }
+
+        function drawBack(ctx, col1, col2, w, h) {
+            // закрашиваем канвас градиентным фоном
+            ctx.save();
+            let g = ctx.createLinearGradient(0, 0, 0, h);
+            g.addColorStop(1, col1);
+            g.addColorStop(0, col2);
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, w, h);
+            ctx.restore();
+        }
+
+        // инициализация работы
+        function init() {
+            canvas = document.getElementById('canvas');
+            if (canvas.getContext) {
+                ctx = canvas.getContext('2d');
+                //рисуем фон
+                drawBack(ctx, '#bbb', '#aaa', canvas.width, canvas.height);
+                figures = [];
+                for (let i = 0; i < 10; i++) {
+                    let figureX = 10 + Math.random() * (canvas.width - 30);
+                    let figureY = 10 + Math.random() * (canvas.height - 30);
+                    //let figureY = 800;
+                    let item = createItem(figureX, figureY);
+                    item.draw(ctx);
+                    figures.push(item);
+                }
+            }
+
+        }
+
+        function getMousePos(evt) {
+            let rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        // создаем новый объект по щелчку мыши, добавляем его в массив шариков и рисуем его
+        function goInput(event) {
+            let mousePos = getMousePos(event);
+            let x = mousePos.x;
+            let y = mousePos.y;
+            //let item = createItem(x, y);
+            //item.draw(ctx);
+            //figures.push(item);
+
+            let accelX = canvas.width*Math.sin(gunAngle) / 24;
+            let accelY = -canvas.height*Math.cos(gunAngle) / 24;
+            let bullet = new TBullet(bulletX, bulletY, accelX, accelY);
+            bullet.draw(ctx);
+            figures.push(bullet);
+        }
+
+        function checkCollisions() {
+            let collided = new Set();
+            for (let i = 0; i < figures.length - 1; ++i) {
+                for (let j = i + 1; j < figures.length; ++j) {
+                    if (Collisions.collide(figures[i], figures[j])) {
+                        collided.add(i);
+                        collided.add(j);
+                        //console.log ("чек");
+                    }
+                }
+            }
+            collided = Array.from(collided).sort((a, b) => b - a);
+            for (let i of collided) {
+                console.log ('зачет квадрат')
+                if (help == 0)
+                    help = 1
+                else
+                {
+                    console.log ("gog");
+                    help = 0;
+                    counterScore();
+                    //console.log (counter);
+
+                }
+                figures.splice(i, 1);
+            }
+        }
+         
+
+        function calcGun(evt) {
+            let mousePos = getMousePos(evt);
+            let x = mousePos.x;
+            let y = mousePos.y;
+
+            gunAngle = Math.atan2(y, canvas.width - x);
+            bulletX = 50*Math.cos(gunAngle) - 20;
+            bulletY = canvas.height - 50*Math.sin(gunAngle) + 10;
+        }
+        function drawGun() {
+            ctx.save();
+            ctx.translate(-1, canvas.height);
+            ctx.rotate(gunAngle);
+            ctx.beginPath();
+            ctx.rect(-10, -45, 20, 50);
+            ctx.fillStyle="gold";
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        function moveItems() {
+            //реализация движения шариков, находящихся в массиве balls
+            drawBack(ctx, '#202020', '#aaa', canvas.width, canvas.height);
+            console.log("зачет")
+            checkCollisions();
+            //drawGun(ctx);
+            for (let i = 0; i < figures.length;) {
+                figures[i].move();
+                figures[i].draw(ctx);
+                if ((figures[i].posX - canvas.width > 0) || (figures[i].posX < 0) ||
+                    (figures[i].posY < 0) || (figures[i].posY - canvas.height > 0) || figures[i].size() > maxSize)
+                {
+                    console.log ("зачет вышел");
+                    figures.splice(i, 1);
+                    //figures.
+
+
+                }
+                else
+                    i++;
+            }
+            drawGun();
+        }
+
+        function move() {
+            console.log ("проверка1");
+            if (idTimer === -1)
+            {
+                console.log ("проверка");
+                idTimer = setInterval(moveItems, 30);
+            }
+        }
+
+        function counterScore()
+        {
+            counter++;
+            document.getElementById("demo").innerHTML = counter;
+        }
+
+        function grid(width, height, span) 
+        {
+            var cnv = document.createElement("canvas");
+	        cnv.width = width;
+	        cnv.height = height;
+	        var ctx = cnv.getContext("2d");
+	        ctx.strokeStyle = "red";
+	        var w = cnv.width - 1;
+	        var h = cnv.height - 1;
+	        for (var x = -0.5; x < w; x += span) ctx.strokeRect(x, 0, 0.1, h);
+	        for (var y = -0.5; y < h; y += span) ctx.strokeRect(0, y, w, 0.1);
+	        return cnv.toDataURL();
+    	}
+
+
+    </script>
+    <style type="text/css">
+        canvas {
+            border: 1px solid blue;
+        }
+    </style>
+</head>
+<body onload="init();">
+<table>
+    <tr>
+        <td>
+            <canvas id="canvas" width="500" height="500" onclick="goInput(event);" onmousemove="calcGun(event)"; onload="grid('500' , '500', '1')"> </canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form>
+                <input type="button" value="Движение" onclick="move()"><br>
+                <input type="button" value="Стоп" onclick="clearInterval(idTimer);idTimer=-1;"><br>
+                <fieldset>
+                    <legend>Настройки движения</legend>
+                    <input type="radio" name="dir" id="UP" onclick="setDirection(this)"/> Вверх<br>
+                    <input type="radio" name="dir" id="DOWN" onclick="setDirection(this)"/> Вниз<br>
+                    <input type="radio" name="dir" id="LEFT" onclick="setDirection(this)"/> Влево<br>
+                    <input type="radio" name="dir" id="RIGHT" onclick="setDirection(this)"/> Вправо<br>
+                </fieldset>
+            <fieldset>
+                счетчик<br>
+                <p id="demo"></p>
+            </fieldset>
+
+            </form>
+        </td>
+    </tr>
+    </tr>
+</table>
+</body>
+</html>

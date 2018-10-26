@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Сайт </title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+	<div class="hat"><img src="http://data2.1freewallpapers.com/detail/abstraction-line-purple.jpg"></div>
+	    <nav>
+    	    <ul>
+    	        <li><a href="main.html">Главная</a></li>
+    	        <li><a href="#">Задания</a>
+					<ul>
+						<li><a href="#">Задание 1</a>
+						<ul>
+							<li><a href="poem.html">Стих</a></li>
+							<li><a href="myself.html">О себе</a></li>
+						</ul></li>	
+			            <li><a href="#">Задание 2</a>
+						<ul>
+			                <li><a href="math.html">Формулки</a></li>
+			                <li><a href="figures.html">Рисунки</a></li>
+			            </ul></li>
+			            <li><a href="#">Задание 3</a>
+						<ul>
+			                <li><a href="JS - 1.html">JS - 1</a></li>
+			                <li><a href="JS - 2.html">JS - 2</a></li>
+                            <li><a href="JS - 3.html">JS - 3</a></li>
+                            <li><a href="JS - 4.html">JS - 4</a></li>
+			            </ul></li>
+                        <li><a href="#">Задание 4</a>
+                        <ul>
+                            <li><a href="4 - 1.html">4 - 1</a></li>
+                        </ul></li>
+                         <li><a href="#">Доп. задания</a>
+                        <ul>
+                            <li><a href="calculator.html">Калькулятор</a></li>
+                        </ul></li>  
+			        </ul></li>
+   		    </ul>
+    	</nav>
+		<div class="table">
+			<div class="Lpole"><p><img src="1xBet.jpg"></p></div>
+			<div class="inform">
+        <form onsubmit="return getSnakeMatrix();">
+                            <label>Размерность матрицы </label>
+                            <input type="number" min="2" max="16" step="1" value="8" id="task4-size" placeholder="Размерность матрицы"/>
+                            <br>
+                            <label>Минимальный элемент </label>
+                            <input type="number" min="-100" max="100" value="-50" step="1" id="task4-min" placeholder="Минимальный элемент"/>
+                            <br>
+                            <label>Максимальный элемент </label>
+                            <input type="number" min="-100" max="100" step="1" value="50" id="task4-max" placeholder="Максимальный элемент"/>
+                            <br>
+                            <input type="button" value="Рассчитать" onclick="getSnakeMatrix()">
+                        </form>
+                        <pre id="task4-result"></pre>
+                        <script type="text/javascript">
+                            function GetRandomInt(min, max) {
+    return Math.round(min - 0.5 + Math.random() * (max - min + 1));
+}
+
+function GetArray(n, min, max) {
+    var A=[];
+    for (var i = 0; i < n; i++) {
+        A[i]=[];
+        for (var j = 0; j < n; j++) {
+            A[i][j] = GetRandomInt(min, max);
+        }
+    }
+    return A;
+}
+
+function GetRusultArray(a) {
+    var Buf=[];
+    for (var i = 0; i < a.length; i++) {
+        for (var j = 0; j < a.length; j++) {
+            Buf.push(a[i][j]);
+        }
+
+
+        //console.log("start Buf - "+Buf+" - end Buf and i%2"+ i%2);
+
+    }
+    Buf.sort(function cmp(a,b){
+        return(a-b);
+    });
+    //console.log("start Buf - "+Buf+" - end Buf");
+    var iter=0;
+    for (var k = 0; k < a.length; k++) {
+        if(k%2==1){
+            for (var j = 0; j < a.length; j++) {
+                a[j][k]=Buf[iter++]
+            }
+        }else{
+            for (var j = a.length-1; j >= 0; j--) {
+                a[j][k]=Buf[iter++];
+            }
+        }
+    }
+    return a;
+}
+
+function getRandomInt(min, max) {
+    return min + Math.round(Math.random()*(max-min));
+}
+function getArray(n, min, max) {
+    let result = [];
+    for (let i = 0; i < n; ++i) {
+        result.push(getRandomInt(min, max));
+    }
+    return result;
+}
+function getResultArray(a) {
+    return a.sort((a, b) => {
+        return parseFloat(a)-parseFloat(b);
+    });
+}
+
+function showMatrix(matrix, domElem) {
+    let cellSize = Math.max.apply(null, matrix.map(row => {
+        return Math.max.apply(null, row.map(value => {
+            return value.toString().length;
+        })) + 1;
+    }));
+    for (let i = 0; i < matrix.length; ++i) {
+        for (let j = 0; j < matrix[i].length; ++j) {
+            let content = matrix[i][j] + " ";
+            while (content.length < cellSize) {
+                content = " " + content;
+            }
+            domElem.textContent += content;
+        }
+        domElem.textContent += "\r\n";
+    }
+}
+
+function getSnakeMatrix() {
+    let output = document.getElementById("task4-result");
+    output.textContent = "";
+    let size = document.getElementById("task4-size").value;
+    if (size < 2 ) {
+        output.textContent = "Некорректный размер матрицы!";
+        return false;
+    }
+    let arrMin = document.getElementById("task4-min").value;
+    let arrMax = document.getElementById("task4-max").value;
+
+    let numbers = getResultArray(getArray(size*size, Math.min(arrMin, arrMax), Math.max(arrMin, arrMax)));
+    let result = new Array(size);
+    let step = -1;
+    let j = size-1;
+
+    for (let i = size-1; i >= 0; --i) {
+        result[i] = new Array(size);
+        while (j >= 0 && j <= size-1) {
+            result[i][j] = numbers.shift();
+            j += step;
+        }
+        step = -step;
+        j = Math.min(j, size-1);
+        j = Math.max(j, 0);
+    }
+
+    showMatrix(result, output);
+    return false;
+}
+                        </script>
+			</div>	
+			<div class="Rpole">
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="https://media.cdnandroid.com/a3/04/4b/2c/imagen-joy-slot-machines-0big.jpg"></a></p>
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="https://yt3.ggpht.com/a-/AK162_7ydhpbLRUZlflPS6Ei2y3fx86fDO4adrQp=s900-mo-c-c0xffffffff-rj-k-no"></a></p>
+				<p><a href="http://okeydoc.ru/opuxol-golovnogo-mozga-simptomy-i-lechenie/"><img src="http://labuat.com/wp-content/uploads/2017/05/1418060529_09.jpg"></a></p>
+			</div>
+		</div>
+		<div class="copyrite"><p>Роговой Владислав Б8103б, для связи <a href="https://vk.com/id161055139"><img src="https://ezgame.ru/upload/vk.png"></a></p></div>
+	</body>
+</html>
+
